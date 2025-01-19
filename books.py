@@ -17,10 +17,6 @@ Notes:
 if necessary.
 """
 
-@app.get("/api-endpoint")
-async def first_api():
-    return {'message': 'Hello World!'}
-
 @app.get("/books")
 async def read_all_books():
     return BOOKS
