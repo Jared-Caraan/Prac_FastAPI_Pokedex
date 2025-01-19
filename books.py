@@ -15,8 +15,15 @@ BOOKS = [
 Notes:
 1. async is not needed in FastAPI, it can be done behind the scenes 
 if necessary.
+2. Order matters with Path Parameters
 """
 
 @app.get("/books")
 async def read_all_books():
     return BOOKS
+
+@app.get("/books/{book_title}")
+async def read_book(book_title: str):
+    for book in BOOKS:
+        if book.get('title').casefold() == book_title.casefold():
+            return book
