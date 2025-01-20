@@ -16,14 +16,27 @@ Notes:
 1. async is not needed in FastAPI, it can be done behind the scenes 
 if necessary.
 2. Order matters with Path Parameters
+3. You can use Query Parameters with Path Parameter
 """
 
 @app.get("/books")
 async def read_all_books():
     return BOOKS
 
+# Path Parameter
+
 @app.get("/books/{book_title}")
 async def read_book(book_title: str):
     for book in BOOKS:
         if book.get('title').casefold() == book_title.casefold():
             return book
+
+# Query Parameter
+
+@app.get("/books/")
+async def read_category_by_query(category: str):
+    books_to_return = []
+    for book in BOOKS:
+        if book.get('category').casefold() == category.casefold():
+                books_to_return.append(book)
+    return books_to_return
