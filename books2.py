@@ -25,6 +25,14 @@ BOOKS = [
     Book(6, 'HP3', 'Author 3', 'Book Description', 1),
 ]
 
+# GET
+
 @app.get("/books")
 async def read_all_books():
     return BOOKS
+
+# POST
+
+@app.post("/create-book")
+async def create_book(book_request=Body()):
+    BOOKS.append(book_request)
