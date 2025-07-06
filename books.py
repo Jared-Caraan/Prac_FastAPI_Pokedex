@@ -62,7 +62,7 @@ async def create_book(new_book=Body()):
 @app.put("/book/update_book")
 async def update_book(updated_book=Body()):
     for i in range(len(BOOKS)):
-        if BOOKS[i].get('title').casefold() == updated_book.get('title').casefold():
+        if BOOKS[i].get('title').casefold() == updated_book.get('title').casefold(): # type: ignore
             BOOKS[i] = updated_book
 
 # DELETE
@@ -70,6 +70,6 @@ async def update_book(updated_book=Body()):
 @app.delete("/book/delete_book/{book_title}")
 async def delete_book(book_title: str):
     for i in range(len(BOOKS)):
-        if BOOKS[i].get('title').casefold() == book_title.casefold():
+        if BOOKS[i].get('title').casefold() == book_title.casefold(): # type: ignore
             BOOKS.pop(i)
             break
