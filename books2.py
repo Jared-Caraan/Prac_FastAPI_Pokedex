@@ -5,49 +5,65 @@ from starlette import status
 
 app = FastAPI()
 
-class Book:
+class Pokemon:
     id: int
-    title: str
-    author: str
+    name: str
+    specie: str
+    type: str
     description: str
-    rating: int
-    published_date: int
+    height: float
+    weight: float
 
-    def __init__(self, id, title, author, description, rating, published_date):
+    def __init__(self, id, name, specie, type, description, height, weight):
         self.id = id
-        self.title = title
-        self.author = author
+        self.name = name
+        self.specie = specie
+        self.type = type
         self.description = description
-        self.rating = rating
-        self.published_date = published_date
+        self.height = height
+        self.weight = weight
 
-class BookRequest(BaseModel):
+class PokeAdd(BaseModel):
     id: Optional[int] = Field(description='ID is not needed on create', default=None)
-    title: str = Field(min_length=3)
-    author: str = Field(min_length=1)
-    description: str = Field(min_length=1, max_length=100)
-    rating: int = Field(gt=0, lt=6)
-    published_date: int = Field(gt=1999, lt=2031)
+    name: str = Field(min_length=1)
+    specie: str = Field(min_length=1)
+    type: str = Field(min_length=1)
+    description: str = Field(min_length=1, max_length=200)
+    height: float = Field(gt=0)
+    weight: float = Field(gt=0)
 
     model_config = {
         "json_schema_extra": {
             "example":{
-                "title": "A new book",
-                "author": "codingwithroby",
-                "description": "A new description of a book",
-                "rating": 5,
-                "published_date": 2012
+                "name": "Pineco",
+                "specie": "Bagworm Pokemon",
+                "type": "Bug",
+                "description": "It hangs and waits for flying-insect prey to come near. It does not move about much on its own.",
+                "height": 0.6,
+                "weight": 7.2
             }
         }
     }
 
-BOOKS = [
-    Book(1, 'Computer Science Pro', 'codingwithroby', 'A very nice book!', 5, 2012),
-    Book(2, 'Be Fast with FastAPI', 'codingwithroby', 'A great book!', 5, 2012),
-    Book(3, 'Master Endpoints', 'codingwithroby', 'An awesome book!', 5, 2012),
-    Book(4, 'HP1', 'Author 1', 'Book Description', 2, 2012),
-    Book(5, 'HP2', 'Author 2', 'Book Description', 3, 2012),
-    Book(6, 'HP3', 'Author 3', 'Book Description', 1, 2012),
+POKEDEX = [
+    Pokemon(1, 'Bulbasaur', 'Seed Pokemon', 'Grass-Poison', 
+            'There is a plant seed on its back right from the day this Pokémon is born. ' \
+            'The seed slowly grows larger.', 0.7, 6.9),
+    Pokemon(2, 'Ivysaur', 'Seed Pokemon', 'Grass-Poison', 
+            'There is a plant bulb on its back. When it absorbs nutrients, ' \
+            'the bulb is said to blossom into a large flower.', 1.0, 13.0),
+    Pokemon(3, 'Venusaur', 'Seed Pokemon', 'Grass-Poison', 
+            'A bewitching aroma wafts from its flower. ' \
+            'The fragrance becalms those engaged in a battle.', 2.0, 100.0),
+    Pokemon(4, 'Charmander', 'Lizard Pokemon', 'Fire', 
+            'From the time it is born, a flame burns at the tip of its tail. ' \
+            'Its life would end if the flame were to go out.', 0.6, 8.5),
+    Pokemon(5, 'Charmeleon', 'Flame Pokemon', 'Fire', 
+            'It lashes about with its tail to knock down its foe. ' \
+            'It then tears up the fallen opponent with sharp claws.', 1.1, 19.0),
+    Pokemon(6, 'Charizard', 'Lizard Pokemon', 'Fire-Flying', 
+            'Its wings can carry this Pokémon close to an altitude of 4,600 feet. ' \
+            'It blows out fire at very high temperatures.', 1.7, 90.5),
 ]
 
 """
@@ -77,65 +93,65 @@ Server Status Codes:
 
 # GET
 
-@app.get("/books", status_code=status.HTTP_200_OK)
-async def read_all_books():
-    return BOOKS
+@app.get("/pokedex", status_code=status.HTTP_200_OK)
+async def read_all_pokedex():
+    return POKEDEX
 
-@app.get("/books/{book_id}", status_code=status.HTTP_200_OK)
-async def read_book(book_id: int = Path(gt=0)):
-    for book in BOOKS:
-        if book.id == book_id:
-            return book
+@app.get("/pokedex/{pokedex_id}", status_code=status.HTTP_200_OK)
+async def retrieve_pokemon(pokedex_id: int = Path(gt=0)):
+    for pokemon in POKEDEX:
+        if pokemon.id == pokedex_id:
+            return pokemon
     raise HTTPException(status_code=404, detail='Item not found')
 
-@app.get("/books/", status_code=status.HTTP_200_OK)
-async def read_book_by_rating(book_rating: int = Query(gt=0, lt=6)):
-    books_to_return = []
-    for book in BOOKS:
-        if book.rating == book_rating:
-            books_to_return.append(book)
-    return books_to_return
+@app.get("/pokedex/", status_code=status.HTTP_200_OK)
+async def retrieve_poke_by_name(pokemon_name: str = Query(min_length=1)):
+    pokemons_to_return = []
+    for pokemon in POKEDEX:
+        if pokemon.name == pokemon_name:
+            pokemons_to_return.append(pokemon)
+    return pokemons_to_return
 
-@app.get("/books/publish/", status_code=status.HTTP_200_OK)
-async def read_book_by_published_date(published_date: int= Query(gt=1999, lt=2031)):
-    books_to_return = []
-    for book in BOOKS:
-        if book.published_date == published_date:
-            books_to_return.append(book)
-    return books_to_return
+@app.get("/pokedex/type/", status_code=status.HTTP_200_OK)
+async def retrieve_poke_by_type(type: str = Query(min_length=1)):
+    pokemons_to_return = []
+    for pokemon in POKEDEX:
+        if pokemon.type == type:
+            pokemons_to_return.append(pokemon)
+    return pokemons_to_return
 
 # POST
 
-@app.post("/create-book", status_code=status.HTTP_201_CREATED)
-async def create_book(book_request: BookRequest):
-    new_book = Book(**book_request.model_dump())
-    BOOKS.append(find_book_id(new_book))
+@app.post("/add-pokemon", status_code=status.HTTP_201_CREATED)
+async def add_pokemon(unseen_pokemon: PokeAdd):
+    new_pokemon = Pokemon(**unseen_pokemon.model_dump())
+    POKEDEX.append(find_pokedex_id(new_pokemon))
 
-def find_book_id(book: Book):
-    book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
+def find_pokedex_id(pokemon: Pokemon):
+    pokemon.id = 1 if len(POKEDEX) == 0 else POKEDEX[-1].id + 1
     
-    return book
+    return pokemon
 
 # PUT
 
-@app.put("/book/update_book", status_code=status.HTTP_204_NO_CONTENT)
-async def update_book(book: BookRequest):
-    book_changed = False
-    for i in range(len(BOOKS)):
-        if BOOKS[i].id == book.id:
-            BOOKS[i] = book # type: ignore
-            book_changed = True
-    if not book_changed:
+@app.put("/pokemon/update_pokemon", status_code=status.HTTP_204_NO_CONTENT)
+async def update_pokemon(pokemon: PokeAdd):
+    poke_changed = False
+    for i in range(len(POKEDEX)):
+        if POKEDEX[i].id == pokemon.id:
+            POKEDEX[i] = pokemon # type: ignore
+            poke_changed = True
+    if not poke_changed:
         raise HTTPException(status_code=404, detail='Item not found')
 
 # DELETE
-@app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_book(book_id: int = Path(gt=0)):
-    book_changed = False
-    for i in range(len(BOOKS)):
-        if BOOKS[i].id == book_id:
-            BOOKS.pop(i)
-            book_changed = True
+@app.delete("/pokedex/{pokedex_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_pokemon(pokedex_id: int = Path(gt=0)):
+    poke_changed = False
+    for i in range(len(POKEDEX)):
+        if POKEDEX[i].id == pokedex_id:
+            POKEDEX.pop(i)
+            poke_changed = True
             break
-    if not book_changed:
+    if not poke_changed:
         raise HTTPException(status_code=404, detail='Item not found')
