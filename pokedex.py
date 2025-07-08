@@ -45,7 +45,7 @@ class PokeAdd(BaseModel):
         }
     }
 
-POKEDEX = [
+POKEMONS = [
     Pokemon(1, 'Bulbasaur', 'Seed Pokemon', 'Grass-Poison', 
             'There is a plant seed on its back right from the day this Pokémon is born. ' \
             'The seed slowly grows larger.', 0.7, 6.9),
@@ -95,28 +95,28 @@ Server Status Codes:
 
 @app.get("/pokedex", status_code=status.HTTP_200_OK)
 async def read_all_pokedex():
-    return POKEDEX
+    return POKEMONS
 
 @app.get("/pokedex/{pokedex_id}", status_code=status.HTTP_200_OK)
 async def retrieve_pokemon(pokedex_id: int = Path(gt=0)):
-    for pokemon in POKEDEX:
+    for pokemon in POKEMONS:
         if pokemon.id == pokedex_id:
             return pokemon
     raise HTTPException(status_code=404, detail='Item not found')
 
-@app.get("/pokedex/", status_code=status.HTTP_200_OK)
+@app.get("/pokedex/name/", status_code=status.HTTP_200_OK)
 async def retrieve_poke_by_name(pokemon_name: str = Query(min_length=1)):
     pokemons_to_return = []
-    for pokemon in POKEDEX:
-        if pokemon.name == pokemon_name:
+    for pokemon in POKEMONS:
+        if pokemon.name.lower().find(pokemon_name.lower()) != -1:
             pokemons_to_return.append(pokemon)
     return pokemons_to_return
 
 @app.get("/pokedex/type/", status_code=status.HTTP_200_OK)
 async def retrieve_poke_by_type(type: str = Query(min_length=1)):
     pokemons_to_return = []
-    for pokemon in POKEDEX:
-        if pokemon.type == type:
+    for pokemon in POKEMONS:
+        if pokemon.type.lower().find(type.lower()) != -1:
             pokemons_to_return.append(pokemon)
     return pokemons_to_return
 
@@ -125,10 +125,10 @@ async def retrieve_poke_by_type(type: str = Query(min_length=1)):
 @app.post("/add-pokemon", status_code=status.HTTP_201_CREATED)
 async def add_pokemon(unseen_pokemon: PokeAdd):
     new_pokemon = Pokemon(**unseen_pokemon.model_dump())
-    POKEDEX.append(find_pokedex_id(new_pokemon))
+    POKEMONS.append(find_pokedex_id(new_pokemon))
 
 def find_pokedex_id(pokemon: Pokemon):
-    pokemon.id = 1 if len(POKEDEX) == 0 else POKEDEX[-1].id + 1
+    pokemon.id = 1 if len(POKEMONS) == 0 else POKEMONS[-1].id + 1
     
     return pokemon
 
@@ -137,9 +137,9 @@ def find_pokedex_id(pokemon: Pokemon):
 @app.put("/pokemon/update_pokemon", status_code=status.HTTP_204_NO_CONTENT)
 async def update_pokemon(pokemon: PokeAdd):
     poke_changed = False
-    for i in range(len(POKEDEX)):
-        if POKEDEX[i].id == pokemon.id:
-            POKEDEX[i] = pokemon # type: ignore
+    for i in range(len(POKEMONS)):
+        if POKEMONS[i].id == pokemon.id:
+            POKEMONS[i] = pokemon # type: ignore
             poke_changed = True
     if not poke_changed:
         raise HTTPException(status_code=404, detail='Item not found')
@@ -148,9 +148,9 @@ async def update_pokemon(pokemon: PokeAdd):
 @app.delete("/pokedex/{pokedex_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_pokemon(pokedex_id: int = Path(gt=0)):
     poke_changed = False
-    for i in range(len(POKEDEX)):
-        if POKEDEX[i].id == pokedex_id:
-            POKEDEX.pop(i)
+    for i in range(len(POKEMONS)):
+        if POKEMONS[i].id == pokedex_id:
+            POKEMONS.pop(i)
             poke_changed = True
             break
     if not poke_changed:
