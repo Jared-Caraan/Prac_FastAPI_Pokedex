@@ -11,14 +11,6 @@ BOOKS = [
     {'title': 'Title Six', 'author': 'Author Two', 'category': 'math'}
 ]
 
-"""
-Notes:
-1. async is not needed in FastAPI, it can be done behind the scenes 
-if necessary.
-2. Order matters with Path Parameters
-3. You can use Query Parameters with Path Parameter
-"""
-
 @app.get("/books")
 async def read_all_books():
     return BOOKS
