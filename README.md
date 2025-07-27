@@ -1,5 +1,9 @@
 # FastAPI
 
+## Pip Installs
+1. fastapi
+2. uvicorn[standard]
+
 ## Quick Notes
 1. `async` is not needed in FastAPI, it can be done behind the scenes 
 if necessary.
